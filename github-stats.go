@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/google/go-github/github"
@@ -18,9 +19,6 @@ func main() {
 
 		switch command {
 		case 1:
-			fmt.Println("TTMPR - Time to Merge Pull Requests")
-
-		case 2:
 			listPublicRepos()
 		case 0:
 			fmt.Println("Ok, bye!")
@@ -42,7 +40,6 @@ func introMessage() {
 
 func showMenuOptions() {
 	fmt.Println("1- Time to Merge Pull Requests")
-	fmt.Println("2- List Public Repositories")
 	fmt.Println("0- Exit")
 }
 
@@ -56,12 +53,42 @@ func listPublicRepos() {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	opt := &github.RepositoryListByOrgOptions{Type: "public"}
-	repos, _, err := client.Repositories.ListByOrg(context.Background(), "phpcanada", opt)
+	opt := &github.PullRequestListOptions{State: "closed", Sort: "created", Direction: "desc"}
 
-	client.PullRequests.
-		fmt.Println("Repos: ", repos)
-	fmt.Println("Errors: ", err)
+	pulls, _, err := client.PullRequests.List(context.Background(), githubUsername, githubRepository, opt)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var currentPull *github.PullRequest
+	totalPullRequests := 0
+	totalMergedInDays := 0.0
+
+	for _, pull := range pulls {
+		currentPull = pull
+		createdAt := currentPull.GetCreatedAt()
+		mergedAt := currentPull.GetMergedAt()
+		mergedInDays := mergedAt.Sub(createdAt).Hours() / 24
+
+		if mergedInDays > 0 {
+			fmt.Println("Title:", currentPull.GetTitle())
+			// fmt.Println("CreatedAt:", createdAt)
+			// fmt.Println("MergedAt:", mergedAt)
+			// fmt.Println(reflect.TypeOf(currentPull.GetMergedAt()))
+			fmt.Printf("Merged in: %f days", mergedInDays)
+			fmt.Printf("\n\n")
+			totalMergedInDays += mergedInDays
+			totalPullRequests++
+		}
+	}
+
+	fmt.Printf("Total Pull Requests: %d \n", totalPullRequests)
+	fmt.Printf("Average Time to Merge: %f days \n", totalMergedInDays/float64(totalPullRequests))
+
+	// data, _ := json.MarshalIndent(repos, "", "  ")
+	// fmt.Println(data)
+	// fmt.Println("Errors: ", err)
 }
 
 func readCommand() int {
