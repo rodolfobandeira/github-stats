@@ -53,7 +53,7 @@ func listPublicRepos() {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	opt := &github.PullRequestListOptions{State: "closed", Sort: "created", Direction: "desc"}
+	opt := &github.PullRequestListOptions{State: "closed", Sort: "created", Direction: "desc", ListOptions: github.ListOptions{PerPage: 100}}
 
 	pulls, _, err := client.PullRequests.List(context.Background(), githubUsername, githubRepository, opt)
 
