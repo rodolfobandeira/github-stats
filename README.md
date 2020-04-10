@@ -7,6 +7,14 @@ How to run?
 GITHUB_TOKEN=<YOUR_TOKEN> GITHUB_USERNAME=<YOUR_USERNAME> GITHUB_REPOSITORY=<REPO> go run github-stats.go
 ```
 
+How to build?
+
+```bash
+make
+```
+
+It will create the binary files inside `/bin` for the following platforms: Linux, ARM, Windows, MacOS
+
 
 Current options:
 

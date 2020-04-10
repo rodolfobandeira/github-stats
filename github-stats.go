@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -53,7 +54,7 @@ func listPublicRepos() {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	opt := &github.PullRequestListOptions{State: "closed", Sort: "created", Direction: "desc", ListOptions: github.ListOptions{PerPage: 100}}
+	opt := &github.PullRequestListOptions{State: "closed", Sort: "merged", Direction: "desc", ListOptions: github.ListOptions{PerPage: 100}}
 
 	pulls, _, err := client.PullRequests.List(context.Background(), githubUsername, githubRepository, opt)
 
@@ -65,6 +66,15 @@ func listPublicRepos() {
 	totalPullRequests := 0
 	totalMergedInDays := 0.0
 
+	file, err := os.OpenFile("stats_reports/time_to_merge.csv", os.O_CREATE|os.O_RDWR, 0755)
+	csvHeader := fmt.Sprintf("\x22%s\x22,\x22%s\x22\n", "PR Title", "Merged in Days")
+
+	file.WriteString(csvHeader)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
 	for _, pull := range pulls {
 		currentPull = pull
 		createdAt := currentPull.GetCreatedAt()
@@ -72,7 +82,11 @@ func listPublicRepos() {
 		mergedInDays := mergedAt.Sub(createdAt).Hours() / 24
 
 		if mergedInDays > 0 {
-			fmt.Println("Title:", currentPull.GetTitle())
+			pullRequestTitle := sanitizeLine(currentPull.GetTitle())
+			csvRow := fmt.Sprintf("\x22%s\x22,\x22%f\x22\n", pullRequestTitle, mergedInDays)
+
+			file.WriteString(csvRow)
+			fmt.Println("Title:", pullRequestTitle)
 			// fmt.Println("CreatedAt:", createdAt)
 			// fmt.Println("MergedAt:", mergedAt)
 			// fmt.Println(reflect.TypeOf(currentPull.GetMergedAt()))
@@ -82,6 +96,8 @@ func listPublicRepos() {
 			totalPullRequests++
 		}
 	}
+
+	file.Close()
 
 	fmt.Printf("Total Pull Requests: %d \n", totalPullRequests)
 	fmt.Printf("Average Time to Merge: %f days \n", totalMergedInDays/float64(totalPullRequests))
@@ -97,4 +113,11 @@ func readCommand() int {
 	fmt.Printf("\n\n")
 
 	return command
+}
+
+func sanitizeLine(lineRow string) string {
+	lineRow = strings.ReplaceAll(lineRow, "\"", "'")
+	lineRow = strings.ReplaceAll(lineRow, ",", ".")
+
+	return lineRow
 }
