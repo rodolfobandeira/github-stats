@@ -16,4 +16,7 @@
 # vendor/
 
 bin/*
+!bin/.gitkeep
+
 stats_reports/*
+!stats_reports/.gitkeep
