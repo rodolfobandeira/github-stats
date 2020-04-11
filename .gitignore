@@ -20,3 +20,5 @@ bin/*
 
 stats_reports/*
 !stats_reports/.gitkeep
+.vscode/*
+!.vscode/launch.json
