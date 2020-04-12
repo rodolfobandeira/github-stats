@@ -1,4 +1,4 @@
-package main
+package utils
 
 // In Go, if we have multiple files with the same package, they are all visible
 // If there are different packages, we make things visible across them capitalizing
