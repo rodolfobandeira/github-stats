@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-// Variatic Variable as parameter here
-func containsEmpty(ss ...string) bool {
+// ContainsEmpty - fails if string is empty
+func ContainsEmpty(ss ...string) bool {
 	for _, s := range ss {
 		if s == "" {
 			return true
@@ -19,13 +19,15 @@ func containsEmpty(ss ...string) bool {
 	return false
 }
 
-func sanitizeLine(lineRow string) string {
+// SanitizeLine - Remove invalid characters to build a valid CSV row
+func SanitizeLine(lineRow string) string {
 	lineRow = strings.ReplaceAll(lineRow, "\"", "'")
 	lineRow = strings.ReplaceAll(lineRow, ",", ".")
 
 	return lineRow
 }
 
-func emptyLine() {
+// EmptyLine - Empty Line
+func EmptyLine() {
 	fmt.Printf("\n")
 }

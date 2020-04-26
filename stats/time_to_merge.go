@@ -9,10 +9,12 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/google/go-github/github"
+	"github.com/rodolfobandeira/github-stats/utils"
 	"golang.org/x/oauth2"
 )
 
-func timeToMerge(githubToken string, githubUsername string, githubRepository string) {
+// TimeToMerge - Returns average of time to merge pull requests
+func TimeToMerge(githubToken string, githubUsername string, githubRepository string) {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: githubToken})
 	tc := oauth2.NewClient(ctx, ts)
@@ -67,7 +69,7 @@ func timeToMerge(githubToken string, githubUsername string, githubRepository str
 		mergedInDays := mergedAt.Sub(createdAt).Hours() / 24
 
 		if mergedInDays > 0 {
-			pullRequestTitle := sanitizeLine(currentPull.GetTitle())
+			pullRequestTitle := utils.SanitizeLine(currentPull.GetTitle())
 			csvRow := fmt.Sprintf(
 				"\x22%s\x22,\x22%f\x22\n",
 				strings.Trim(pullRequestTitle, " "),
@@ -89,11 +91,11 @@ func timeToMerge(githubToken string, githubUsername string, githubRepository str
 
 	file.Close()
 
-	emptyLine()
+	utils.EmptyLine()
 	c := color.New(color.FgYellow).Add(color.BgBlack).Add(color.Bold)
 	fmt.Printf("Total Pull Requests: %d \n", totalPullRequests)
 	c.Printf("Average Time to Merge: %f days", totalMergedInDays/float64(totalPullRequests))
-	emptyLine()
+	utils.EmptyLine()
 
 	// data, _ := json.MarshalIndent(repos, "", "  ")
 	// fmt.Println(data)
