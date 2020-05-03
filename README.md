@@ -2,7 +2,10 @@
 
 A CLI tool to visualize Github stats from Pull Requests, Commits, Branches, Issues, etc.
 
-![github-stats](docs/github-stats.png)
+<p align="center">
+  <img src="docs/github-stats.png" max-width="75%"/>
+</p>
+
 
 ## Getting Started
 
